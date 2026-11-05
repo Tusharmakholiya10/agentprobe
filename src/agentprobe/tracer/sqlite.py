@@ -1,13 +1,29 @@
-
 """SQLite-backed event trace persistence."""
 
 import json
+import os
 import sqlite3
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
 from agentprobe.schemas import Trace, TraceEvent, TraceEventType, utc_now
+
+
+def max_log_chars() -> int:
+    """Maximum characters stored per logged text field (AGENTPROBE_MAX_LOG_CHARS)."""
+    try:
+        return int(os.getenv("AGENTPROBE_MAX_LOG_CHARS", "20000"))
+    except ValueError:
+        return 20000
+
+
+def truncate_text(text: str, limit: int | None = None) -> str:
+    """Truncate text for logging, noting how much was cut."""
+    limit = max_log_chars() if limit is None else limit
+    if len(text) <= limit:
+        return text
+    return f"{text[:limit]}... [truncated {len(text) - limit} chars]"
 
 
 class SQLiteTracer:
@@ -38,7 +54,9 @@ class SQLiteTracer:
                     finished_at TEXT,
                     total_input_tokens INTEGER NOT NULL DEFAULT 0,
                     total_output_tokens INTEGER NOT NULL DEFAULT 0,
-                    total_cost_usd REAL NOT NULL DEFAULT 0
+                    total_cost_usd REAL NOT NULL DEFAULT 0,
+                    status TEXT NOT NULL DEFAULT 'running',
+                    status_reason TEXT
                 );
 
                 CREATE TABLE IF NOT EXISTS events (
@@ -57,6 +75,20 @@ class SQLiteTracer:
                     ON events(run_id, timestamp);
                 """
             )
+            self._migrate(connection)
+
+    def _migrate(self, connection: sqlite3.Connection) -> None:
+        """Add status columns to databases created before they existed."""
+        columns = {row[1] for row in connection.execute("PRAGMA table_info(runs)")}
+        if "status" not in columns:
+            connection.execute(
+                "ALTER TABLE runs ADD COLUMN status TEXT NOT NULL DEFAULT 'running'"
+            )
+            connection.execute(
+                "UPDATE runs SET status = 'completed' WHERE finished_at IS NOT NULL"
+            )
+        if "status_reason" not in columns:
+            connection.execute("ALTER TABLE runs ADD COLUMN status_reason TEXT")
 
     def start_run(
         self,
@@ -181,11 +213,34 @@ class SQLiteTracer:
             connection.execute(
                 """
                 UPDATE runs
-                SET final_answer = ?, finished_at = ?
+                SET final_answer = ?, finished_at = ?, status = 'completed'
                 WHERE run_id = ?
                 """,
                 (final_answer, utc_now().isoformat(), run_id),
             )
+
+    def abort_run(self, run_id: str, reason: str) -> None:
+        """Mark a run aborted so reports can exclude or flag it."""
+        with self._connect() as connection:
+            connection.execute(
+                """
+                UPDATE runs
+                SET status = 'aborted', status_reason = ?, finished_at = ?
+                WHERE run_id = ?
+                """,
+                (truncate_text(reason, 2000), utc_now().isoformat(), run_id),
+            )
+
+    def get_run_status(self, run_id: str) -> tuple[str, str | None]:
+        """Return (status, reason) for a run."""
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT status, status_reason FROM runs WHERE run_id = ?",
+                (run_id,),
+            ).fetchone()
+        if row is None:
+            raise KeyError(f"Run not found: {run_id}")
+        return str(row[0]), row[1]
 
     def get_trace(self, run_id: str) -> Trace:
         """Load a complete trace, raising KeyError when no run exists."""

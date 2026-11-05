@@ -13,7 +13,7 @@ class MockProvider(LLMProvider):
 
     def generate(self, prompt: str, system_prompt: str = "") -> LLMResponse:
         """Return a stable response derived from the prompt."""
-        self._check_budget()
+        self._check_budget(system_prompt + "\n" + prompt)
         started = perf_counter()
         text = f"MOCK_RESPONSE: {prompt.strip()}"
         usage = self._usage(system_prompt + "\n" + prompt, text, started)

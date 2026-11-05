@@ -33,7 +33,7 @@ class OllamaProvider(LLMProvider):
         system_prompt: str = "",
     ) -> LLMResponse:
         """Generate a response using Ollama's /api/chat endpoint."""
-        self._check_budget()
+        self._check_budget(system_prompt + "\n" + prompt)
 
         messages = []
 

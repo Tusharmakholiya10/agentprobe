@@ -45,7 +45,7 @@ class HostedProvider(LLMProvider):
         system_prompt: str = "",
     ) -> LLMResponse:
         """Generate a chat completion and normalize provider usage."""
-        self._check_budget()
+        self._check_budget(system_prompt + "\n" + prompt)
 
         messages = []
 

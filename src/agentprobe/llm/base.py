@@ -48,12 +48,26 @@ class LLMProvider(ABC):
         self.total_tokens = 0
         self.total_cost_usd = 0.0
 
-    def _check_budget(self) -> None:
-        """Abort before making a request if the cumulative budget is spent."""
+    def _check_budget(self, upcoming_prompt: str = "") -> None:
+        """Abort before a request if the budget is spent or the next call would exceed it."""
         if self.total_tokens >= self.budget.max_tokens:
             raise BudgetExceeded("Maximum token budget reached; run aborted cleanly.")
         if self.total_cost_usd >= self.budget.max_spend_usd:
             raise BudgetExceeded("Maximum spend budget reached; run aborted cleanly.")
+        if upcoming_prompt:
+            estimated = self.count_tokens(upcoming_prompt)
+            if self.total_tokens + estimated > self.budget.max_tokens:
+                raise BudgetExceeded(
+                    f"Next call would exceed the token budget "
+                    f"({self.total_tokens} used + ~{estimated} estimated > "
+                    f"{self.budget.max_tokens} allowed); aborted before calling the model."
+                )
+            estimated_cost = estimated * self.input_usd_per_1k / 1000
+            if self.total_cost_usd + estimated_cost > self.budget.max_spend_usd:
+                raise BudgetExceeded(
+                    "Next call would exceed the spend budget; "
+                    "aborted before calling the model."
+                )
 
     def _usage(self, prompt: str, output: str, started: float) -> Usage:
         """Build normalized usage and update cumulative accounting."""
