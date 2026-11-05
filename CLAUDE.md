@@ -68,3 +68,25 @@ Small Phase 1 hardening before Phase 2. Keep all existing tests passing.
    chars). Update replay to show them.
 5. Add tests for each change, then run pytest, ruff, and mypy and show me
    the output.
+
+Small Phase 1 hardening before Phase 2. Read CLAUDE.md and the existing code
+first. Keep all existing tests passing.
+
+1. CLI errors: catch BudgetExceeded and configuration ValueError at the CLI
+   level and print a short, readable message (no traceback) with exit
+   code 1. Keep full tracebacks available via an AGENTPROBE_DEBUG=1 env
+   var.
+2. Budget guard: also check BEFORE each call using estimated input tokens,
+   and pass a max output token cap to providers where supported. Keep the
+   after-call check as a backstop.
+3. Aborted runs: when a run fails or is aborted, record a run_aborted event
+   with the reason and mark the run status in SQLite, so reports can
+   exclude or flag them. Add a status column with a safe migration for
+   existing databases.
+4. Tracer: llm_call events should store the messages sent to the model and
+   the raw response (truncated to a configurable max length, default 20000
+   chars). Update replay to show them.
+5. Add tests for each change, then run pytest, ruff, and mypy and show me
+   the output.
+
+Use pathlib everywhere and keep all commands PowerShell-compatible.
