@@ -1,0 +1,92 @@
+Metadata-Version: 2.4
+Name: agentprobe
+Version: 0.1.0
+Summary: A reproducible red-teaming harness for AI agents
+Author: AgentProbe Contributors
+License: MIT
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pydantic>=2.6
+Requires-Dist: typer>=0.12
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff>=0.5; extra == "dev"
+Requires-Dist: mypy>=1.10; extra == "dev"
+Dynamic: license-file
+
+# AgentProbe
+
+AgentProbe is an open-source harness for measuring how prompt-injection and
+agent-manipulation attacks perform against sandboxed AI agents. It records
+reproducible traces and supports comparing defenses by measuring whether they
+**reduced the success of these attacks on these agents**.
+
+> Phase 1 provides the schemas, provider wrapper, SQLite tracer, and replay CLI.
+> Later phases add sandbox targets, attack libraries, judging, defenses, and reports.
+
+## Requirements
+
+- Python 3.11+
+- Optional: Ollama running locally for the Ollama provider
+- Optional: an OpenAI-compatible hosted endpoint for the hosted provider
+
+## Quickstart (mock; no network or API key)
+
+```bash
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest
+agentprobe demo
+agentprobe replay latest
+```
+
+`demo` writes a deterministic sample trace to `.agentprobe/agentprobe.sqlite3`.
+`replay latest` prints its events.
+
+## Provider configuration
+
+Set `AGENTPROBE_PROVIDER` to `mock` (default), `ollama`, or `hosted`.
+
+Ollama:
+```bash
+export AGENTPROBE_PROVIDER=ollama
+export AGENTPROBE_MODEL=llama3.2
+export AGENTPROBE_OLLAMA_URL=http://127.0.0.1:11434
+```
+
+Hosted OpenAI-compatible chat completions:
+```bash
+export AGENTPROBE_PROVIDER=hosted
+export AGENTPROBE_MODEL=your-model
+export AGENTPROBE_BASE_URL=https://your-approved-endpoint/v1
+export AGENTPROBE_API_KEY=your-key
+```
+
+Never commit API keys. The hosted provider is disabled unless explicitly selected.
+
+## Budget guard
+
+`AGENTPROBE_MAX_TOKENS` and `AGENTPROBE_MAX_SPEND_USD` set per-provider-client
+limits. `AGENTPROBE_INPUT_USD_PER_1K` and `AGENTPROBE_OUTPUT_USD_PER_1K`
+configure estimated hosted pricing. Defaults are conservative zero-cost
+estimates for local/mock use; configure prices for your hosted model.
+
+## Trace database
+
+The database defaults to `.agentprobe/agentprobe.sqlite3`. Override it with
+`AGENTPROBE_DB_PATH`. Trace events include prompts, tool arguments/results,
+final answers, timestamps, token usage, latency, and estimated cost. Treat
+trace databases as sensitive even when using synthetic fixtures.
+
+## Current scope and limitations
+
+Phase 1 does not execute agents or tools. It provides primitives for later
+phases. Provider token counts are provider-reported when available and
+otherwise estimated. Cost is an estimate, not a billing statement.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

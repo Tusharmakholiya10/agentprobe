@@ -1,0 +1,2 @@
+[console_scripts]
+agentprobe = agentprobe.cli:app
