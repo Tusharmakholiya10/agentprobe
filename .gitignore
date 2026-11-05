@@ -8,3 +8,7 @@ __pycache__/
 htmlcov/
 .agentprobe/
 .env
+
+*.egg-info/
+.agentprobe/
+.venv/

@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "A reproducible red-teaming harness for AI agents"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
+license = "MIT"
 authors = [{name = "AgentProbe Contributors"}]
 dependencies = [
   "pydantic>=2.6",

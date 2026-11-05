@@ -1,7 +1,0 @@
-pydantic>=2.6
-typer>=0.12
-
-[dev]
-pytest>=8.0
-ruff>=0.5
-mypy>=1.10

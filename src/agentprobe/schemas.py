@@ -1,7 +1,8 @@
+
 """Pydantic schemas shared across AgentProbe modules."""
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
@@ -10,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 def utc_now() -> datetime:
     """Return an aware UTC timestamp."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class StrictModel(BaseModel):
@@ -51,7 +52,7 @@ class ToolResult(StrictModel):
     error: str | None = None
 
 
-class TraceEventType(str, Enum):
+class TraceEventType(StrEnum):
     """Kinds of events persisted in a trace."""
 
     SYSTEM_PROMPT = "system_prompt"
