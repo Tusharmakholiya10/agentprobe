@@ -61,6 +61,7 @@ class TraceEventType(StrEnum):
     TOOL_RESULT = "tool_result"
     FINAL_ANSWER = "final_answer"
     LLM_CALL = "llm_call"
+    RUN_ABORTED = "run_aborted"
 
 
 class TraceEvent(StrictModel):
