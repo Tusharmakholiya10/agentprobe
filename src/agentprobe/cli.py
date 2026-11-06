@@ -117,3 +117,25 @@ def replay(run_id: str = typer.Argument(..., help="Run ID, or 'latest'.")) -> No
 
 if __name__ == "__main__":
     app()
+
+@app.command()
+def baseline(
+    target: str = typer.Option(
+        "all", "--target", help="Target to evaluate: email, web, bank, or all."
+    ),
+) -> None:
+    """Run the deterministic normal-task utility baseline."""
+    from agentprobe.targets.tasks import run_baseline
+
+    targets = ("email", "web", "bank") if target == "all" else (target,)
+    if any(name not in {"email", "web", "bank"} for name in targets):
+        raise typer.BadParameter("Target must be email, web, bank, or all.")
+    tracer = _tracer()
+    for name in targets:
+        report = run_baseline(name, tracer)
+        typer.echo(
+            f"{report.target}: {report.passed}/{report.total} "
+            f"({report.utility_rate:.0%} utility)"
+        )
+        if report.failures:
+            typer.echo(f"  Failed tasks: {', '.join(report.failures)}")
