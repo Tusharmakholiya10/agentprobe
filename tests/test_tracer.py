@@ -9,11 +9,13 @@ def test_trace_round_trip_and_replay(tmp_path) -> None:
     tracer = SQLiteTracer(tmp_path / "trace.sqlite3")
     run_id = tracer.start_run("system", "task")
     tracer.add_event(
-        run_id, TraceEventType.TOOL_CALL,
+        run_id,
+        TraceEventType.TOOL_CALL,
         {"name": "lookup_fake", "arguments": {"item": "fixture"}},
     )
     tracer.add_event(
-        run_id, TraceEventType.TOOL_RESULT,
+        run_id,
+        TraceEventType.TOOL_RESULT,
         {"tool_call_id": "call-1", "output": "synthetic result"},
     )
     tracer.finish_run(run_id, "done")

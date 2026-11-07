@@ -89,7 +89,9 @@ class LLMProvider(ABC):
             self.total_tokens > self.budget.max_tokens
             or self.total_cost_usd > self.budget.max_spend_usd
         ):
-            raise BudgetExceeded("Call completed but exceeded the configured budget; run aborted.")
+            raise BudgetExceeded(
+                "Call completed but exceeded the configured budget; run aborted."
+            )
         return usage
 
     @staticmethod

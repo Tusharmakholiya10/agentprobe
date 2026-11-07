@@ -1,4 +1,3 @@
-
 """OpenAI-compatible hosted chat-completions provider using urllib."""
 
 import json
@@ -23,21 +22,15 @@ class HostedProvider(LLMProvider):
         super().__init__(model=model, **kwargs)  # type: ignore[arg-type]
 
         self.base_url = (
-            base_url
-            or os.getenv("AGENTPROBE_BASE_URL")
-            or "https://api.openai.com/v1"
+            base_url or os.getenv("AGENTPROBE_BASE_URL") or "https://api.openai.com/v1"
         ).rstrip("/")
 
         self.api_key = (
-            api_key
-            if api_key is not None
-            else os.getenv("AGENTPROBE_API_KEY", "")
+            api_key if api_key is not None else os.getenv("AGENTPROBE_API_KEY", "")
         )
 
         if not self.api_key:
-            raise ValueError(
-                "AGENTPROBE_API_KEY is required when provider=hosted."
-            )
+            raise ValueError("AGENTPROBE_API_KEY is required when provider=hosted.")
 
     def generate(
         self,
@@ -50,13 +43,9 @@ class HostedProvider(LLMProvider):
         messages = []
 
         if system_prompt:
-            messages.append(
-                {"role": "system", "content": system_prompt}
-            )
+            messages.append({"role": "system", "content": system_prompt})
 
-        messages.append(
-            {"role": "user", "content": prompt}
-        )
+        messages.append({"role": "user", "content": prompt})
 
         body = json.dumps(
             {
@@ -89,13 +78,9 @@ class HostedProvider(LLMProvider):
             ) from exc
 
         except (URLError, TimeoutError, json.JSONDecodeError) as exc:
-            raise RuntimeError(
-                f"Hosted provider request failed: {exc}"
-            ) from exc
+            raise RuntimeError(f"Hosted provider request failed: {exc}") from exc
 
-        text = str(
-            payload["choices"][0]["message"]["content"]
-        )
+        text = str(payload["choices"][0]["message"]["content"])
 
         elapsed = (perf_counter() - started) * 1000
         reported = payload.get("usage", {})

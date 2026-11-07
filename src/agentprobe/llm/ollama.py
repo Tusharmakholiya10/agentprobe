@@ -1,4 +1,3 @@
-
 """Ollama local HTTP provider, implemented with the standard library."""
 
 import json
@@ -22,9 +21,7 @@ class OllamaProvider(LLMProvider):
         super().__init__(model=model, **kwargs)  # type: ignore[arg-type]
 
         self.base_url = (
-            base_url
-            or os.getenv("AGENTPROBE_OLLAMA_URL")
-            or "http://127.0.0.1:11434"
+            base_url or os.getenv("AGENTPROBE_OLLAMA_URL") or "http://127.0.0.1:11434"
         ).rstrip("/")
 
     def generate(
@@ -38,13 +35,9 @@ class OllamaProvider(LLMProvider):
         messages = []
 
         if system_prompt:
-            messages.append(
-                {"role": "system", "content": system_prompt}
-            )
+            messages.append({"role": "system", "content": system_prompt})
 
-        messages.append(
-            {"role": "user", "content": prompt}
-        )
+        messages.append({"role": "user", "content": prompt})
 
         body = json.dumps(
             {
@@ -68,13 +61,9 @@ class OllamaProvider(LLMProvider):
                 payload = json.loads(response.read().decode())
 
         except (URLError, TimeoutError, json.JSONDecodeError) as exc:
-            raise RuntimeError(
-                f"Ollama request failed: {exc}"
-            ) from exc
+            raise RuntimeError(f"Ollama request failed: {exc}") from exc
 
-        text = str(
-            payload.get("message", {}).get("content", "")
-        )
+        text = str(payload.get("message", {}).get("content", ""))
 
         usage = self._usage(
             system_prompt + "\n" + prompt,

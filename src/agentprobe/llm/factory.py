@@ -1,4 +1,3 @@
-
 """Environment-driven provider construction."""
 
 import os
@@ -18,21 +17,13 @@ def create_provider(
     model = os.getenv("AGENTPROBE_MODEL", "mock-deterministic")
 
     active_budget = budget or ExperimentConfig(
-        max_tokens=int(
-            os.getenv("AGENTPROBE_MAX_TOKENS", "100000")
-        ),
-        max_spend_usd=float(
-            os.getenv("AGENTPROBE_MAX_SPEND_USD", "1.0")
-        ),
+        max_tokens=int(os.getenv("AGENTPROBE_MAX_TOKENS", "100000")),
+        max_spend_usd=float(os.getenv("AGENTPROBE_MAX_SPEND_USD", "1.0")),
     )
 
-    input_rate = float(
-        os.getenv("AGENTPROBE_INPUT_USD_PER_1K", "0")
-    )
+    input_rate = float(os.getenv("AGENTPROBE_INPUT_USD_PER_1K", "0"))
 
-    output_rate = float(
-        os.getenv("AGENTPROBE_OUTPUT_USD_PER_1K", "0")
-    )
+    output_rate = float(os.getenv("AGENTPROBE_OUTPUT_USD_PER_1K", "0"))
 
     if provider == "mock":
         return MockProvider(
@@ -58,6 +49,4 @@ def create_provider(
             output_usd_per_1k=output_rate,
         )
 
-    raise ValueError(
-        f"Unknown AGENTPROBE_PROVIDER: {provider}"
-    )
+    raise ValueError(f"Unknown AGENTPROBE_PROVIDER: {provider}")
