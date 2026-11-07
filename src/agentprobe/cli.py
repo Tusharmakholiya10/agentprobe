@@ -5,7 +5,7 @@ from agentprobe.tracer.sqlite_tracer import SQLiteTracer
 app = typer.Typer(help="AgentProbe: AI Agent Red-Teaming CLI")
 
 @app.command()
-def replay(run_id: str, db_path: str = "agentprobe.db"):
+def replay(run_id: str, db_path: str = "agentprobe.db") -> None:
     """Prints a readable step-by-step trace of a given run_id."""
     tracer = SQLiteTracer(db_path)
     try:

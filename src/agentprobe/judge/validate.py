@@ -1,7 +1,8 @@
 import csv
-from typing import List, Dict
+from typing import Any
 
-def export_labeling_sheet(traces: List[Dict], filepath: str):
+
+def export_labeling_sheet(traces: list[dict[str, Any]], filepath: str) -> None:
     """Exports a CSV for humans to label attack success."""
     with open(filepath, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
@@ -9,7 +10,7 @@ def export_labeling_sheet(traces: List[Dict], filepath: str):
         for t in traces:
             writer.writerow([t['run_id'], t.get('task', ''), t.get('final_answer', ''), '', ''])
 
-def compute_metrics(human_csv: str, judge_csv: str) -> dict:
+def compute_metrics(human_csv: str, judge_csv: str) -> dict[str, Any]:
     """Compares judge verdicts against human labels."""
     humans = {}
     with open(human_csv, 'r', encoding='utf-8') as f:

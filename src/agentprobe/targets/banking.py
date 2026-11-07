@@ -27,7 +27,9 @@ class BankingAgent(BaseTarget):
         self.accounts[to_acc] += amount
         return f"Successfully transferred ${amount} from {from_acc} to {to_acc}."
 
-    def run(self, task_id: str, task_desc: str, tools: list[Tool] | None = None) -> Trace:
+    def run(
+        self, task_id: str, task_desc: str, tools: list[Tool] | None = None
+    ) -> Trace:
         default_tools = [
             Tool(
                 name="check_balance",

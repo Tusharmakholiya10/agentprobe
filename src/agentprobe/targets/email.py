@@ -35,7 +35,9 @@ class EmailAgent(BaseTarget):
         self.outbox.append({"to": recipient, "body": body})
         return "Email sent successfully."
 
-    def run(self, task_id: str, task_desc: str, tools: list[Tool] | None = None) -> Trace:
+    def run(
+        self, task_id: str, task_desc: str, tools: list[Tool] | None = None
+    ) -> Trace:
         default_tools = [
             Tool(
                 name="read_email",

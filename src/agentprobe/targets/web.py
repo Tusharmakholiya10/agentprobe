@@ -16,16 +16,20 @@ class WebResearchAgent(BaseTarget):
     def _fetch_page(self, url: str) -> str:
         try:
             # We strictly limit this to localhost for the sandbox rule
-            if not url.startswith("http://localhost:") and not url.startswith("http://127.0.0.1:"):
+            if not url.startswith("http://localhost:") and not url.startswith(
+                "http://127.0.0.1:"
+            ):
                 return "Error: Sandbox violation. Only localhost URLs permitted."
-            
+
             resp = requests.get(url, timeout=2)
             resp.raise_for_status()
             return resp.text
         except requests.RequestException as e:  # <-- CHANGED THIS LINE
             return f"Error fetching page: {e!s}"
 
-    def run(self, task_id: str, task_desc: str, tools: list[Tool] | None = None) -> Trace:
+    def run(
+        self, task_id: str, task_desc: str, tools: list[Tool] | None = None
+    ) -> Trace:
         default_tools = [
             Tool(
                 name="fetch_page",
