@@ -1,75 +1,18 @@
-# AgentProbe
+# 🕵️ AgentProbe
 
-AgentProbe is an open-source harness for measuring how prompt-injection and
-agent-manipulation attacks perform against sandboxed AI agents. It records
-reproducible traces and supports comparing defenses by measuring whether they
-**reduced the success of these attacks on these agents**.
+AgentProbe is an open-source, lightweight red-teaming framework designed to evaluate the security, safety, and robustness of Tool-Calling AI Agents. It automates prompt injection attacks, evaluates defense mechanisms, and generates reproducible regression tests.
 
-> Phase 1 provides the schemas, provider wrapper, SQLite tracer, and replay CLI.
-> Later phases add sandbox targets, attack libraries, judging, defenses, and reports.
+## 🚀 Key Features
 
-## Requirements
+* **Provider-Agnostic LLM Interface:** Works with OpenAI, Anthropic, Ollama, or custom mock models for cost-free testing.
+* **Sandboxed Target Agents:** Includes mock environments for Email, Web Research, and Banking to safely simulate severe attacks (e.g., data exfiltration, unauthorized transfers).
+* **Attack Engine:** Loads YAML-based attack seeds and uses an LLM-driven mutator to generate variants for fuzzy testing.
+* **Pluggable Defenses:** Implements a Wrapper pattern allowing you to easily stack defenses (Sanitization, Guard Models, Permission Gates) without rewriting agent code.
+* **SQLite Tracing & Resumability:** Every step, tool call, and token cost is logged. If a massive campaign crashes due to API limits, AgentProbe resumes exactly where it left off.
+* **Automated Regression Generation:** Converts successful LLM traces into pure Python `pytest` files for CI/CD integration.
 
-- Python 3.11+
-- Optional: Ollama running locally for the Ollama provider
-- Optional: an OpenAI-compatible hosted endpoint for the hosted provider
+## 🛠️ Quick Start
 
-## Quickstart (mock; no network or API key)
-
+**1. Install Dependencies**
 ```bash
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-source .venv/bin/activate
-pip install -e ".[dev]"
-pytest
-agentprobe demo
-agentprobe replay latest
-```
-
-`demo` writes a deterministic sample trace to `.agentprobe/agentprobe.sqlite3`.
-`replay latest` prints its events.
-
-## Provider configuration
-
-Set `AGENTPROBE_PROVIDER` to `mock` (default), `ollama`, or `hosted`.
-
-Ollama:
-```bash
-export AGENTPROBE_PROVIDER=ollama
-export AGENTPROBE_MODEL=llama3.2
-export AGENTPROBE_OLLAMA_URL=http://127.0.0.1:11434
-```
-
-Hosted OpenAI-compatible chat completions:
-```bash
-export AGENTPROBE_PROVIDER=hosted
-export AGENTPROBE_MODEL=your-model
-export AGENTPROBE_BASE_URL=https://your-approved-endpoint/v1
-export AGENTPROBE_API_KEY=your-key
-```
-
-Never commit API keys. The hosted provider is disabled unless explicitly selected.
-
-## Budget guard
-
-`AGENTPROBE_MAX_TOKENS` and `AGENTPROBE_MAX_SPEND_USD` set per-provider-client
-limits. `AGENTPROBE_INPUT_USD_PER_1K` and `AGENTPROBE_OUTPUT_USD_PER_1K`
-configure estimated hosted pricing. Defaults are conservative zero-cost
-estimates for local/mock use; configure prices for your hosted model.
-
-## Trace database
-
-The database defaults to `.agentprobe/agentprobe.sqlite3`. Override it with
-`AGENTPROBE_DB_PATH`. Trace events include prompts, tool arguments/results,
-final answers, timestamps, token usage, latency, and estimated cost. Treat
-trace databases as sensitive even when using synthetic fixtures.
-
-## Current scope and limitations
-
-Phase 1 does not execute agents or tools. It provides primitives for later
-phases. Provider token counts are provider-reported when available and
-otherwise estimated. Cost is an estimate, not a billing statement.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+pip install -e .
