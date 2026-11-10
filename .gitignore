@@ -12,3 +12,9 @@ htmlcov/
 *.egg-info/
 .agentprobe/
 .venv/
+node_modules/
+.venv/
+__pycache__/
+*.db
+.env
+.next/
