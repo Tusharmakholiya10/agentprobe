@@ -9,7 +9,8 @@ export default function Dashboard() {
 
   const fetchResults = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/campaign/results");
+      // UPDATED TO RENDER URL
+      const res = await fetch("https://agentprobe-7txx.onrender.com/api/campaign/results");
       const json = await res.json();
       if (!json.error) setData(json);
     } catch (err) {
@@ -24,8 +25,8 @@ export default function Dashboard() {
   const runCampaign = async () => {
     setLoading(true);
     try {
-      await fetch("http://127.0.0.1:8000/api/campaign/run", { method: "POST" });
-      // Poll for results after a few seconds
+      // UPDATED TO RENDER URL
+      await fetch("https://agentprobe-7txx.onrender.com/api/campaign/run", { method: "POST" });
       setTimeout(async () => {
         await fetchResults();
         setLoading(false);
@@ -107,4 +108,4 @@ export default function Dashboard() {
       </div>
     </main>
   );
-} 
+}
