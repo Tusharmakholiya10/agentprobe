@@ -27,9 +27,8 @@ def get_db_connection():
 async def run_campaign(background_tasks: BackgroundTasks):
     def run_probe():
         try:
-            # Triggers your agentprobe CLI tool in the background
-            # Update this command if your local script runs differently
-            subprocess.run(["python", "-m", "agentprobe", "run"], check=True)
+            # Run the CLI command directly
+            subprocess.run("agentprobe run", shell=True, check=True)
         except Exception as e:
             print(f"Error running campaign: {e}")
 
