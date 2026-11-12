@@ -9,8 +9,10 @@ export default function Dashboard() {
 
   const fetchResults = async () => {
     try {
-      // UPDATED TO RENDER URL
-      const res = await fetch("https://agentprobe-7txx.onrender.com/api/campaign/results");
+      // ADD cache: "no-store" to force fresh data
+      const res = await fetch("https://agentprobe-7txx.onrender.com/api/campaign/results", {
+        cache: "no-store" 
+      });
       const json = await res.json();
       if (!json.error) setData(json);
     } catch (err) {
@@ -18,19 +20,20 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchResults();
-  }, []);
-
   const runCampaign = async () => {
     setLoading(true);
     try {
-      // UPDATED TO RENDER URL
-      await fetch("https://agentprobe-7txx.onrender.com/api/campaign/run", { method: "POST" });
+      await fetch("https://agentprobe-7txx.onrender.com/api/campaign/run", { 
+        method: "POST",
+        cache: "no-store"
+      });
+      
+      // Increase timeout to 10 seconds to give the free Render server time to finish
       setTimeout(async () => {
         await fetchResults();
         setLoading(false);
-      }, 3000);
+      }, 10000);
+      
     } catch (err) {
       console.error("Failed to run campaign", err);
       setLoading(false);
